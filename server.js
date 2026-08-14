@@ -77,6 +77,35 @@ app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
 });
 
+// 4. Debug Route - Fix Webhook Subscription
+app.get('/fix-webhook', async (req, res) => {
+  try {
+    const r = await axios.post(
+      `https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/subscribe`,
+      { messaging_product: 'whatsapp' },
+      { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
+    );
+    console.log('✅ Webhook subscription fixed');
+    res.json({ success: true, data: r.data });
+  } catch (e) {
+    console.log('❌ Error fixing webhook:', e.response?.data || e.message);
+    res.json({ error: e.response?.data || e.message });
+  }
+});
+
+// 5. Debug Route - Check Subscription
+app.get('/check-subscription', async (req, res) => {
+  try {
+    const r = await axios.get(
+      `https://graph.facebook.com/v21.0/1078837787819850/subscribed_apps`,
+      { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
+    );
+    res.json(r.data);
+  } catch (e) {
+    res.json(e.response ? e.response.data : { error: e.message });
+  }
+});
+
 // Start Server
 app.listen(port, () => {
   console.log(`🚀 Bot active on port ${port}`);
